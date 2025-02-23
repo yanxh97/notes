@@ -61,10 +61,11 @@ That explains why `` /some/dir$ script.sh `` would not work if neither ``/some/d
 
 Moreover, it's a good habit to start relative path with ``./``,
 1. Consider 
-	```bash
+```bash
 source helper.sh   # $PATH would be searched first
 source ./heler.sh  # always source local script
-	``` 
+```
+
 2. Avoid ambiguous semantics like ``touch -a file``, i.e. file name starting with hyphen. Another way to avoid the ambiguous hyphen is to use end of flags: double hyphen``--``.
 
 ## List of Commands
