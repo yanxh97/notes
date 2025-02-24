@@ -1,4 +1,5 @@
-## Bash Startup Files
+# 1 Bash Overview
+## 1.1 Bash Startup Files
 
 Startup procedure of Bash depends on the shell types. Shell can be either *login* or *non-login, interactive* or *non-interactive*, to tell what type of shell is running:
 1. Use ``echo $-`` to check the set of options for current shell, the pattern would be `*i*` if *interactive*.
@@ -20,7 +21,7 @@ if [ -z "$BASHRCSOURCED" ]; then
 fi
 ```
 
-## Shell built-in commands
+## 1.2 Shell built-in commands
 
 Bourne Shell built-in commands:
 **:, ., break, cd, continue, eval, exec, exit, export, getopts, hash, pwd, readonly, return, set, shift, test, \[, times, trap, umask, unset**
@@ -31,7 +32,7 @@ Bash built-in commands:
 POSIX special built-ins:
 **:, ., break, continue, eval, exec, exit, export, readonly, return, set, shift, trap, unset**
 
-## Shell Parsing Syntax
+## 1.3 Shell Parsing Syntax
 
 1. The shell reads input from a file, a string or the terminal.
 2. Input is broken up into words and operators, obeying **quoting rules**. **Alias expansion** is performed.
@@ -40,7 +41,7 @@ POSIX special built-ins:
 5. Commands are executed.
 6. Optionally wait for completion and collects exit status.
 
-## Executing Commands
+## 1.4 Executing Commands
 
 "A simple command is a **sequence of optional variable assignments** followed by blank-separated **words and redirections**, and terminated by a control operator. The **first word** specifies the command to be executed, and is passed as argument zero. The remaining words are passed as arguments to the invoked command." -- Bash man page
 
@@ -68,7 +69,7 @@ source ./heler.sh  # always source local script
 
 2. Avoid ambiguous semantics like ``touch -a file``, i.e. file name starting with hyphen. Another way to avoid the ambiguous hyphen is to use end of flags: double hyphen``--``.
 
-## List of Commands
+## 1.5 List of Commands
 
 A `list` is a sequence of one or more pipelines separated by one of the operators ‘\;’, ‘\&’, ‘\&\&’, or ‘\|\|’, and optionally terminated by one of ‘\;’, ‘\&’, or a `newline`.
 
@@ -87,7 +88,7 @@ echo -n A || false && echo -n B # AB $?=0
 false || echo -n A && echo -n B # AB $?=0
 ```
 
-## Executing the Script
+## 1.6 Executing the Script
 
 1. A script is preferred to be executed in a sub-shell or child shell, for post-execution cleanup.  
 2. In order to change the **current shell context**, or if you don't want to start a new shell, use ``.`` (dot command) for Bourne shell and ``source`` for Bash.
@@ -113,7 +114,7 @@ echo $a $b                   # 0 1 changes in subshell won't be reflected
 
 ```
 
-## Debugging and Configuring Bash 
+## 1.7 Debugging and Configuring Bash 
 
 The most common is to start up the subshell with the ``-x`` option, which will run the entire script in debug mode, or enclose some commands with ``set -x`` and ``set +x. Traces of each command plus its arguments are printed to standard output after the commands have been expanded but before they are executed.  
 1. `` set -f `` or `` set -o noglob `` To disable file name generation using metacharacters (globbing). For example, ``*`` would be interpreted as a filename.
@@ -127,7 +128,10 @@ TITLE='\[\e]0;\u@\h: \w\a\]'
 PS1='\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$'
 ```
 
-## Variables
+# 2 Parameters and Expansions
+## 2.1 Parameters and Variables
+
+In a bash context a parameter is an entity that stores values. Furthermore, a parameter can be a name ( variable ), number ( positional parameter ) or special character ( special parameter ).
 
 1. **Global / environment** variables: available in all shells, use ``env`` or ``printenv`` to display
 2. **Local** variables: available in the current shell, use ``set`` to display a list of all variables (including environment variables) and functions. Use ``unset`` to unset variables.
@@ -150,14 +154,14 @@ PS1='\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$'
 | ``$0``    | Expands to the name of the shell or shell script.                                                                                                                                                                                                                                                                                                                                                                                          |
 | ``$_``    | The underscore variable is set at shell startup and contains the absolute file name of the shell or script being executed as passed in the argument list. Subsequently, it expands to the last argument to the previous command, after expansion. It is also set to the full pathname of each command executed and placed in the environment exported to that command. When checking mail, this parameter holds the name of the mail file. |
 
-## Quoting
+## 2.2 Quoting
 
 1. Escape character: A non-quoted backslash, ``\``, is used as an escape character in Bash. It preserves the literal value of the next character that follows, with the exception of *newline*. If a newline character appears immediately after the backslash, it marks the continuation of a line when it is longer that the width of the terminal; the backslash is removed from the input stream and effectively ignored.
 2. Single quotes: Single quotes are used to preserve the **literal value** of each character enclosed within the quotes. **A single quote may not occur between single quotes**, even when preceded by a backslash. Example ``echo 'There'\''s no escape'`` generates ``There's no escape``
 3. Double quotes: Using double quotes the **literal value** of all characters enclosed is preserved, **except for the dollar sign, the backticks (backward single quotes, `` ` ``) and the backslash.**
 4. ANSI-C quoting: ``$'STRING'`` expands to a string, with backslash-escaped characters replaced as specified by the ANSI-C standard.
 
-## Shell Expansion
+## 2.3 Shell Expansion
 
 The "$" character introduces **parameter expansion, command substitution, or arithmetic expansion**. The expansion is performed in the following order.
 
@@ -211,11 +215,9 @@ echo "$word"
 # a   b
 ```
 
-## ``dirs`` directory stack
 
-TODO
 
-## More on Variable Expansion 
+## 2.4 More on Variable Expansion 
 
 The double quotes are omitted in the following points
 1. ``${!VAR}`` **Indirect expansion**, allowing double expansion
@@ -250,7 +252,7 @@ eval eval eval echo \\\\$\\$\$$l3
 eval eval eval eval echo \\\\\\\\$\\\\$\\$\$$l4
 ```
 
-## Aliases
+## 2.5 Aliases
 
 An alias allows a string to be substituted for a word when it is used **as the first word of a simple command**. The shell maintains a list of aliases that may be set and unset with the **alias** and **unalias** built-in commands. 
 
@@ -258,7 +260,10 @@ The first word of each simple command, if unquoted, is checked to see if it has 
 
 Aliases are not inherited by child processes. Bourne shell (**sh**) does not recognize aliases.
 
-## Regular Expressions
+
+# 3 Pattern and Editing
+
+## 3.1 Regular Expressions
 
 Metacharacters are as follows. ``^ $ \< \>`` are called anchors. 
 
@@ -288,13 +293,13 @@ In basic regular expressions (BRE) the metacharacters "\?", "\+", "\{", "\|"
 
 A *bracket expression* is a list of characters enclosed by "\[" and "\]". It matches any **single character** in that list; first character "\^" means matching anything NOT in the list. Within a bracket expression, a *range expression* consists of two characters separated by a hyphen. ``[a-c]`` may mean ``[aBbCc]`` or ``[abc]`` depending on ``LC_ALL`` environment variables. Set ``LC_ALL='C'`` to use C locale.
 
-## ``grep``
+## 3.2 ``grep``
 
 **grep** searches the input files for lines containing a match to a given pattern list.
 
 ``-i`` ignore case, ``-n`` print line number, ``-v`` invert match,  ``-c`` count matched lines, ``-w`` match word
 
-## Globbing pattern
+## 3.3 Glob patterns
 
 Asterisk "\*" means any string, question mark "\?" means any single character. Quote them to match them literally.
 
@@ -310,7 +315,7 @@ When ``extglob`` is enabled using ``shopt`` builtin, the following extended patt
 ``@(pattern-list)`` one of given patterns
 ``!(pattern-list)`` anything except one of the given patterns.
 
-## ``sed`` for Stream Editting
+## 3.4 ``sed`` for Stream Editing
 
 | Option             | Effect                                     |
 | :----------------- | :----------------------------------------- |
@@ -337,7 +342,7 @@ A semicolon (‘;’) may be used to separate most simple commands (except `a\ c
 
 Use number and pattern to specify line, and use ``n,m`` or ``/pat1/,/pat2/`` or mixture of previous two to represent line ranges.
 
-## ``awk`` Editor
+## 3.5 ``awk`` Editor
 
 ``awk PROGRAM inputfile(s)`` or ``awk -f PROGRAM-FILE inputfile(s)``
 ```awk
@@ -354,99 +359,8 @@ END { POST-PROCESS }
 | NS       | Number of record                                  |
 | NF       | Number of fields                                  |
  
-## ``sort``
-
-TODO
-
-## ``tr``
-
-TODO
-
-## ``find``
-
-TODO
-
-## ``if`` Conditional Statements
-
-``if TEST-COMMANDS; then CONSEQUENT-COMMANDS; fi``
-``if TEST-COMMANDS; then CONSEQUENT-COMMANDS; elif MORE-TEST-COMMANDS; then MORE-CONSEQUENT-COMMANDS; else ELSE-CONSEQUENT-COMMANDS; fi``
-
-The ``TEST-COMMAND`` often involves numerical or string comparison tests, a.k.a. **Bash Conditional Expression**, but it can also be any command that returns a status of **zero when it succeeds** and some **other status when it fails**.
-
-The ``[`` or ``test`` built-in, or the ``[[`` compound command are called Bash conditional expression. They are usually used as TEST-COMMAND. 
-
-## Bash Conditional Expressions
-
-``[[ … ]]`` is preferred over ``[ … ]``, ``test`` and ``/usr/bin/[``. ``[[ … ]]`` reduces errors as **no pathname expansion or word splitting** takes place between ``[[`` and ``]]``. In addition, ``[[ … ]]`` allows for pattern and regular expression matching, while ``[ … ]`` does not.  -- Google style guide
-
-The following is 
-
-| Primary                             | Meaning                                                                                                                                                                                                                                                             |
-| :---------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| ``-a FILE``                     | True if FILE exists.                                                                                                                                                                                                                                                |
-| ``-d FILE``                     | True if FILE exists and is a directory.                                                                                                                                                                                                                             |
-| ``-e FILE``                     | True if FILE exists.                                                                                                                                                                                                                                                |
-| ``-f FILE``                     | True if FILE exists and is a regular file.                                                                                                                                                                                                                          |
-| ``-h FILE``                     | True if FILE exists and is a symbolic link.                                                                                                                                                                                                                         |
-| ``-p FILE``                     | True if FILE exists and is a named pipe (FIFO).                                                                                                                                                                                                                     |
-| ``-r FILE``                     | True if FILE exists and is readable.                                                                                                                                                                                                                                |
-| ``-s FILE``                     | True if FILE exists and has a size greater than zero.                                                                                                                                                                                                               |
-| ``-w FILE``                     | True if FILE exists and is writable.                                                                                                                                                                                                                                |
-| ``-x FILE``                     | True if FILE exists and is executable.                                                                                                                                                                                                                              |
-| ``-O FILE``                     | True if FILE exists and is owned by the effective user ID.                                                                                                                                                                                                          |
-| ``-G FILE``                     | True if FILE exists and is owned by the effective group ID.                                                                                                                                                                                                         |
-| ``-L FILE``                     | True if FILE exists and is a symbolic link.                                                                                                                                                                                                                         |
-| ``-N FILE``                     | True if FILE exists and has been modified since it was last read.                                                                                                                                                                                                   |
-| ``-S FILE``                     | True if FILE exists and is a socket.                                                                                                                                                                                                                                |
-| ``FILE1 -nt FILE2``             | True if FILE1 has been changed more recently than FILE2, or if FILE1 exists and FILE2 does not.                                                                                                                                                                     |
-| ``FILE1 -ot FILE2``             | True if FILE1 is older than FILE2, or is FILE2 exists and FILE1 does not.                                                                                                                                                                                           |
-| ``FILE1 -ef FILE2``             | True if FILE1 and FILE2 refer to the same device and inode numbers.                                                                                                                                                                                                 |
-| ``-o OPTIONNAME``               | True if shell option "OPTIONNAME" is enabled.                                                                                                                                                                                                                       |
-| ``-z STRING``                   | True of the length if "STRING" is zero.                                                                                                                                                                                                                             |
-| ``-n STRING`` or ``STRING``     | True if the length of "STRING" is non-zero.                                                                                                                                                                                                                         |
-| ``STRING1 == STRING2``          | True if the strings are equal. "=" may be used instead of "==" for strict POSIX compliance.                                                                                                                                                                         |
-| ``STRING1 != STRING2``          | True if the strings are not equal.                                                                                                                                                                                                                                  |
-| ``STRING1 < STRING2``           | True if "STRING1" sorts before "STRING2" lexicographically in the current locale.                                                                                                                                                                                   |
-| ``[TRING1 > STRING2``           | True if "STRING1" sorts after "STRING2" lexicographically in the current locale.                                                                                                                                                                                    |
-| ``ARG1 OP ARG2``                | "OP" is one of -eq, -ne, -lt, -le, -gt or -ge.\*                                                                                                                                                                                                                    |
- 
-\*: These arithmetic binary operators return true if arg1 is equal to, not equal to, less than, less than or equal to, greater than, or greater than or equal to arg2, respectively. Arg1 and arg2 may be positive or negative integers. When used with the ``[[`` command, Arg1 and Arg2 are evaluated as arithmetic expressions.
-
-Expressions may be combined using the following operators, listed in decreasing order of precedence:
-
-| Operation              | Effect                                                                                          |
-| :--------------------- | :---------------------------------------------------------------------------------------------- |
-| ``[ ! EXPR ]``         | True if **EXPR** is false.                                                                      |
-| ``[ ( EXPR ) ]``       | Returns the value of **EXPR**. This may be used to override the normal precedence of operators. |
-| ``[ EXPR1 -a EXPR2 ]`` | True if both **EXPR1** and **EXPR2** are true.                                                  |
-| ``[ EXPR1 -o EXPR2 ]`` | True if either **EXPR1** or **EXPR2** is true.                                                  |
-
-## ``case`` Conditional Statements
-
-```bash
-case EXPRESSION in 
-  CASE1) 
-  COMMAND-LIST
-  ;; 
-  CASE2) 
-  COMMAND-LIST
-  ;; 
-  ... 
-  CASEN) 
-  COMMAND-LIST
-  ;; 
-esac
-```
-
-**Bash conditional patterns** are used here. Unlike other programming language, once enter a case, the following clauses would not be processed. (or you can treat ``;;`` as break)
-
-If there's no command to do in COMMAND-LIST, use ``:`` as an empty command.
-
-## ``getopts``
-
-TODO
-
-## Interactive Scripts
+# 4 Redirection
+## 4.1 Interactive Scripts
 
 ``echo`` flags: ``-n`` suppress trailing newline ``-e`` interprets ANSI-C backslash-escaped characters (i.e. ``\\ \n \t`` etc)
 
@@ -464,7 +378,7 @@ TODO
 | ``-t TM``    | Cause **read** to time out and return failure if a complete line of input is not read within TM seconds. This option has no effect if **read** is not reading input from the terminal or from a pipe.       |
 | ``-u FD``    | Read input from file descriptor FD.                                                                                                                                                                         |
 
-## Redirection and file descriptor
+## 4.2 Redirection and file descriptor
 
 File input and output are accomplished by process-specific integer handles that track all open files for a given process. These numeric values are known as **file descriptors**.
 
@@ -533,8 +447,86 @@ exec 6>&-
 
 
 
+## 4.3 Catching Signals and Trapping
 
-## Repetitive Tasks
+# 5 Compound Commands
+## 5.1 ``if`` Conditional Statements
+
+``if TEST-COMMANDS; then CONSEQUENT-COMMANDS; fi``
+``if TEST-COMMANDS; then CONSEQUENT-COMMANDS; elif MORE-TEST-COMMANDS; then MORE-CONSEQUENT-COMMANDS; else ELSE-CONSEQUENT-COMMANDS; fi``
+
+The ``TEST-COMMAND`` often involves numerical or string comparison tests, a.k.a. **Bash Conditional Expression**, but it can also be any command that returns a status of **zero when it succeeds** and some **other status when it fails**.
+
+The ``[`` or ``test`` built-in, or the ``[[`` compound command are called Bash conditional expression. They are usually used as TEST-COMMAND. 
+
+## 5.2 Bash Conditional Expressions
+
+``[[ … ]]`` is preferred over ``[ … ]``, ``test`` and ``/usr/bin/[``. ``[[ … ]]`` reduces errors as **no pathname expansion or word splitting** takes place between ``[[`` and ``]]``. In addition, ``[[ … ]]`` allows for pattern and regular expression matching, while ``[ … ]`` does not.  -- Google style guide
+
+The following is 
+
+| Primary                             | Meaning                                                                                                                                                                                                                                                             |
+| :---------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ``-a FILE``                     | True if FILE exists.                                                                                                                                                                                                                                                |
+| ``-d FILE``                     | True if FILE exists and is a directory.                                                                                                                                                                                                                             |
+| ``-e FILE``                     | True if FILE exists.                                                                                                                                                                                                                                                |
+| ``-f FILE``                     | True if FILE exists and is a regular file.                                                                                                                                                                                                                          |
+| ``-h FILE``                     | True if FILE exists and is a symbolic link.                                                                                                                                                                                                                         |
+| ``-p FILE``                     | True if FILE exists and is a named pipe (FIFO).                                                                                                                                                                                                                     |
+| ``-r FILE``                     | True if FILE exists and is readable.                                                                                                                                                                                                                                |
+| ``-s FILE``                     | True if FILE exists and has a size greater than zero.                                                                                                                                                                                                               |
+| ``-w FILE``                     | True if FILE exists and is writable.                                                                                                                                                                                                                                |
+| ``-x FILE``                     | True if FILE exists and is executable.                                                                                                                                                                                                                              |
+| ``-O FILE``                     | True if FILE exists and is owned by the effective user ID.                                                                                                                                                                                                          |
+| ``-G FILE``                     | True if FILE exists and is owned by the effective group ID.                                                                                                                                                                                                         |
+| ``-L FILE``                     | True if FILE exists and is a symbolic link.                                                                                                                                                                                                                         |
+| ``-N FILE``                     | True if FILE exists and has been modified since it was last read.                                                                                                                                                                                                   |
+| ``-S FILE``                     | True if FILE exists and is a socket.                                                                                                                                                                                                                                |
+| ``FILE1 -nt FILE2``             | True if FILE1 has been changed more recently than FILE2, or if FILE1 exists and FILE2 does not.                                                                                                                                                                     |
+| ``FILE1 -ot FILE2``             | True if FILE1 is older than FILE2, or is FILE2 exists and FILE1 does not.                                                                                                                                                                                           |
+| ``FILE1 -ef FILE2``             | True if FILE1 and FILE2 refer to the same device and inode numbers.                                                                                                                                                                                                 |
+| ``-o OPTIONNAME``               | True if shell option "OPTIONNAME" is enabled.                                                                                                                                                                                                                       |
+| ``-z STRING``                   | True of the length if "STRING" is zero.                                                                                                                                                                                                                             |
+| ``-n STRING`` or ``STRING``     | True if the length of "STRING" is non-zero.                                                                                                                                                                                                                         |
+| ``STRING1 == STRING2``          | True if the strings are equal. "=" may be used instead of "==" for strict POSIX compliance.                                                                                                                                                                         |
+| ``STRING1 != STRING2``          | True if the strings are not equal.                                                                                                                                                                                                                                  |
+| ``STRING1 < STRING2``           | True if "STRING1" sorts before "STRING2" lexicographically in the current locale.                                                                                                                                                                                   |
+| ``[TRING1 > STRING2``           | True if "STRING1" sorts after "STRING2" lexicographically in the current locale.                                                                                                                                                                                    |
+| ``ARG1 OP ARG2``                | "OP" is one of -eq, -ne, -lt, -le, -gt or -ge.\*                                                                                                                                                                                                                    |
+ 
+\*: These arithmetic binary operators return true if arg1 is equal to, not equal to, less than, less than or equal to, greater than, or greater than or equal to arg2, respectively. Arg1 and arg2 may be positive or negative integers. When used with the ``[[`` command, Arg1 and Arg2 are evaluated as arithmetic expressions.
+
+Expressions may be combined using the following operators, listed in decreasing order of precedence:
+
+| Operation              | Effect                                                                                          |
+| :--------------------- | :---------------------------------------------------------------------------------------------- |
+| ``[ ! EXPR ]``         | True if **EXPR** is false.                                                                      |
+| ``[ ( EXPR ) ]``       | Returns the value of **EXPR**. This may be used to override the normal precedence of operators. |
+| ``[ EXPR1 -a EXPR2 ]`` | True if both **EXPR1** and **EXPR2** are true.                                                  |
+| ``[ EXPR1 -o EXPR2 ]`` | True if either **EXPR1** or **EXPR2** is true.                                                  |
+
+## 5.3 ``case`` Conditional Statements
+
+```bash
+case EXPRESSION in 
+  CASE1) 
+  COMMAND-LIST
+  ;; 
+  CASE2) 
+  COMMAND-LIST
+  ;; 
+  ... 
+  CASEN) 
+  COMMAND-LIST
+  ;; 
+esac
+```
+
+**Glob patterns** are used here. Unlike other programming language, once enter a case, the following clauses would not be processed. (or you can treat ``;;`` as break)
+
+If there's no command to do in COMMAND-LIST, use ``:`` as an empty command.
+
+## 5.4 Repetitive Tasks
 
 ``for NAME [in LIST ]; do COMMANDS; done``
 If ``[in LIST]`` is not present, it is replaced with ``in $@``.  ``LIST`` usually can be command substitution, variable substitution, and IFS separated.
@@ -569,7 +561,7 @@ done
 
 Break and continue can be followed by a number to specify how many layers of loop to break/continue.
 
-## ``select`` Compound Commands
+## 5.5 ``select`` Compound Commands
 
 ``select NAME [in LIST ]; do COMMANDS; done``
 1. Expanded LIST would be printed to stderr preceded with corresponding number. 
@@ -580,11 +572,19 @@ Break and continue can be followed by a number to specify how many layers of loo
 6. It's user-friendly to add a word in list to allow breaking the select loop using ``break``.
 
 
+
+## 5.6 Functions
+
 ## ``shift`` built-in
 
 
 
-## Functions
+## ``getopts``
+
+TODO
+
+
+
 
 
 
@@ -592,4 +592,21 @@ Break and continue can be followed by a number to specify how many layers of loo
 
 
 ## ``date``
+
+
+## ``dirs`` directory stack
+
+TODO
+
+## ``sort``
+
+TODO
+
+## ``tr``
+
+TODO
+
+## ``find``
+
+TODO
 
