@@ -484,11 +484,6 @@ ls "$INPUTDIR"/* 2>&1 >&6 6>&- \
 exec 6>&-
 ```
 
-
-
-## 4.3 Catching Signals and Trapping
-
-
 # 5 Compound Commands
 
 ``( list )`` invoke subshell while ``{ list; }`` run in current shell.
@@ -547,6 +542,10 @@ Expressions may be combined using the following operators, listed in decreasing 
 | ``[ ( EXPR ) ]``       | Returns the value of **EXPR**. Override the normal precedence of operators. |
 | ``[ EXPR1 -a EXPR2 ]`` | True if both **EXPR1** and **EXPR2** are true. |
 | ``[ EXPR1 -o EXPR2 ]`` | True if either **EXPR1** or **EXPR2** is true. |
+
+TODO: operators in ``[[...]]``
+
+TODO: comparing ``[[...]]`` and ``(( ... ))``
 
 ## 5.3 ``case`` Conditional Statements
 
@@ -614,20 +613,37 @@ Break and continue can be followed by a number to specify how many layers of loo
 5. If an _EOF_ (End Of File) character is read, (in terminal, press control-D) the loop exits.
 6. It's user-friendly to add a word in list to allow breaking the select loop using ``break``.
 
-
-
 ## 5.6 Functions
 
-``fname () compound-command [ redirections ]`` or ``function fname [()] compound-command [ redirections ]``
+``fname () compound-command [ redirections ]`` 
+``function fname [()] compound-command [ redirections ]``
 
 ``return`` to resume to the next command after the function call. Any command associated with the `RETURN` trap is executed before execution resumes. If a numeric argument is given to `return`, that is the function’s return status; otherwise the function’s return status is the exit status of the last command executed before the `return`.
 
-# 6 Catching Signals
+# 6 Catching Signals and Trap
 
+Use ``man -k signal | grep list`` to look through manual. Signal names can be found using ``kill -l``.
+
+| Standard key combination | Meaning |
+| :----------------------- | :------ |
+| **Ctrl**+**C**           | The interrupt signal, sends SIGINT to the job running in the foreground. |
+| **Ctrl**+**Y**           | The _delayed suspend_ character. Causes a running process to be stopped when it attempts to read input from the terminal. Control is returned to the shell, the user can foreground, background or kill the process. Delayed suspend is only available on operating systems supporting this feature. |
+| **Ctrl**+**Z**           | The _suspend_ signal, sends a _SIGTSTP_ to a running program, thus stopping it and returning control to the shell. |
+
+``trap [COMMANDS] [SIGNALS]``  This instructs the **trap** command to catch the listed _SIGNALS_, which may be signal names with or without the _SIG_ prefix, or signal numbers. If a signal is _0_ or _EXIT_, the **COMMANDS** are executed when the shell exits. If one of the signals is _DEBUG_, the list of **COMMANDS** is executed after every simple command. A signal may also be specified as _ERR_; in that case **COMMANDS** are executed each time a simple command exits with a non-zero status.
+
+Traps may not be inherited to function unless the function has been declared with ``-t`` flag.
+
+```bash
+declare -t VARIABLE=value
+trap "echo VARIABLE is $VARIABLE." DEBUG
+# rest of the script
+```
 
 # 7 Miscellanous Commands
 
 ## ``getopts``
+
 ``shift`` builtin
 TODO
 
@@ -635,6 +651,7 @@ TODO
 
 ## ``date``
 
+TODO
 
 ## ``dirs`` directory stack
 
