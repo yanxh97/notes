@@ -148,13 +148,23 @@ In a bash context a parameter is an entity that stores values. Furthermore, a pa
 2. **Local** variables: available in the current shell, use ``set`` to display a list of all variables (including environment variables) and functions. Use ``unset`` to unset variables.
 3. By content, variables can be **string, integer, constant or array**.
 4. Variables are **case sensitive** and **capitalized** by default. Variables can also contain digits, but a name starting with a digit is not allowed. Variables may contain or start with underscore "``_``".
-5. Assignment: ``VAR="VALUE"`` **no spaces around equals**, **quote** content string as much as possible.
+5. Assignment: ``VAR="VALUE"`` **no spaces around equals**, **quote** content string as much as possible. Use ``readonly OPTION VARIABLES`` to create constants. Use a ``declare OPTIONS VAR=VALUE`` statement to limit the value assignment to variables.
+
+| Options | Meaning |
+| ------- | ------- |
+| -a | Variable is an array. |
+| -A | Variable is an associate array. |
+| -i | he variable is to be treated as an integer; arithmetic evaluation is performed when the variable is assigned a value. |
+| -p | Display the attributes and values of each variable. |
+| -r | Make variables read-only. |
+| -x | Mark each variable for export to subsequent commands via the environment. |
+
 6. Exporting: In order to pass variables to a subshell, ``export VAR=VALUE``. Variables that are exported are referred to as environment variables.
 7. Reserved Variables: like ``OPTARG, OPTIND, PATH, PS1, PS2`` etc.
 8. Special parameters
 
 | Character | Definition |
-| --- | --- |
+| --------- | ---------- |
 | ``$*``    | Expands to the positional parameters, starting from one. |
 | ``$@``    | Expands to the positional parameters, starting from one. Preferred over ``$*``. |
 | ``$#``    | Expands to the number of positional parameters in decimal. |
@@ -164,6 +174,8 @@ In a bash context a parameter is an entity that stores values. Furthermore, a pa
 | ``$!``    | Expands to the process ID of the most recently executed background (asynchronous) command. |
 | ``$0``    | Expands to the name of the shell or shell script. |
 | ``$_``    | The underscore variable is set at shell startup and contains the absolute file name of the shell or script being executed as passed in the argument list. Subsequently, it expands to the last argument to the previous command, after expansion. It is also set to the full pathname of each command executed and placed in the environment exported to that command. When checking mail, this parameter holds the name of the mail file. |
+
+9. Array and associate array: declare an array ``ARRAY=( str1 str2 )`` or ``ARRAY=( [1]=str1 [2]=str2)``. Declare an associate array ``declare -A ARRAY=([key1]=str1 [key2]=str2)``. Use ``ARRAY+=( str )`` or ``ARRAY+=( [key]=str )`` to append. Use ``unset ARRAY[key]`` ``unset ARRAY`` to delete. Use 
 
 ## 2.2 Quoting
 
@@ -192,7 +204,7 @@ studenta studentb studentc
 5. **Arithmetic expansion**: ``"$((EXPR))"`` is preferred over ``"$[EXPR]"``. May be nested. The expression is treated as if it were within double quotes. Evaluation is done in fixed-width integers with no overflow check, div by zero is trapped and recognized as an error. Operator precedence in decreasing order:
 
 | Operator | Meaning |
-| --- | --- |
+| -------- | ------- |
 | VAR++ and VAR-- | variable post-increment and post-decrement |
 | ++VAR and --VAR | variable pre-increment and pre-decrement   |
 | - and + | unary minus and plus                       |
@@ -236,20 +248,26 @@ The double quotes are omitted in the following points
 1. ``${!VAR}`` **Indirect expansion**, allowing double expansion
 2. ``${!PREFIX*}`` **Names matching prefix**.  Expands to the names of variables whose names begin with ``PREFIX``,  separated  by the  first character of the IFS special variable.  When @ is used and the expansion appears within double quotes, each variable name expands to a separate word.
 3. ``${!name[@]}`` **List of array keys.** If name is an array variable, expands to the list of array indices (keys) assigned in ``name``. 
-4. ``${#VAR}`` Length of VAR
-5. ``${VAR-DEFAULT}  ${VAR:-DEFAULT}  ${VAR:=DEFAULT}`` to tell the differences
+4. ``${name[@]}``expands each element of name to a separate word.
+5. ``${#VAR}`` Length of VAR, or number of elements in an array.
+6. ``${VAR-DEFAULT}  ${VAR:-DEFAULT}  ${VAR:=DEFAULT}`` if a is not empty, then expand normally (except ``:+``). To tell the differences
 
 | symbol | usage                                       |
 | ------ | ------------------------------------------- |
-| ``-``  | use DEFAULT if VAR is unset                 |
-| ``:-`` | use DEFAULT if VAR is unset or empty        |
-| ``=``  | assign DFAULT to VAR if VAR is unset        |
-| ``:=`` | assign DEFAULT to VAR if VAR unset or empty |
+| ``-``  | expand DEFAULT if VAR is unset |
+| ``:-`` | expand DEFAULT if VAR is unset or empty |
+| ``=``  | expand and assign DFAULT to VAR if VAR is unset |
+| ``:=`` | expand and assign DEFAULT to VAR if VAR unset or empty |
+| ``:+`` | If VAR is null or unset, nothing is substituted, otherwise the expansion of DEFAULT is substituted. |
+| ``:?`` | expand DEFAULT, write it to stderr, exit non-interactive shell if VAR unset or empty |
 
-6. ``${VAR#PRE} ${VAR##PRE}`` Remove shortest/longest matched prefix of the expanded VAR
-7. ``${VAR%SUF} ${VAR%%SUF}`` Remove shortest/longest matched suffix of the expanded VAR
+6. ``${VAR#PRE} ${VAR##PRE}`` Remove shortest/longest (globbing) matched prefix of the expanded VAR 
+7. ``${VAR%SUF} ${VAR%%SUF}`` Remove shortest/longest (globbing) matched suffix of the expanded VAR
 8. ``${VAR/PAT/REP} ${VAR//PAT/REP}`` replace first/all occurrence(s) of the pattern
-9. Nested expansion
+9. ``${VAR:START:LEN}`` 0-indexed substring, START can be like `` -3``(leading space, to avoid misleading ``:-``) or ``(-3)``, if ``LEN`` is negative, then it represent the end index (not included).
+10. ``${@:START:LEN}`` or ``${ARRAY[@]:START:LEN}`` like above, LEN cannot be negative here. 
+11. Operations can be applied to array ``${ARRAY[@]##PRE}`` 
+12. Nested expansion
 
 ```bash
 #! /bin/bash
@@ -281,8 +299,8 @@ Aliases are not inherited by child processes. Bourne shell (**sh**) does not rec
 
 Metacharacters are as follows. ``^ $ \< \>`` are called anchors. 
 
-| Operator | Effect                                                                                                          |
-| :------- | :-------------------------------------------------------------------------------------------------------------- |
+| Operator | Effect    |
+| :------- | :-------- |
 | .        | Matches any single character. (Wildcard) |
 | ?        | The preceding item is optional and will be matched, at most, once. |
 | *        | The preceding item will be matched zero or more times. |
@@ -344,7 +362,7 @@ When ``extglob`` is enabled using ``shopt`` builtin, the following extended patt
 It is recommended that ``a\ c\ i\`` should only be placed at the end of the script. ``c\`` would start a new cycle, and the 
 
 | Command | Result |
-| :------ | :------ |
+| :------ | :----- |
 | a\\     | Append text below current line. |
 | c\\     | Change text in the current line with new text. Start a new cycle.|
 | d       | Delete text. |
@@ -385,7 +403,7 @@ END { POST-PROCESS }
 ``read [options] NAME1 NAME2 ...``  leftover words and their intervening separators assigned to the last name; remaining names are assigned empty value;
 
 | Option       | Meaning |
-| :----------- | :----- |
+| :----------- | :------ |
 | ``-a ANAME`` | The words are assigned to sequential indexes of the array variable ANAME, starting at 0. All elements are removed from ANAME before the assignment. Other NAME arguments are ignored. |
 | ``-d DELIM`` | The first character of DELIM is used to terminate the input line, rather than newline. |
 | ``-e``       | **readline** is used to obtain the line. |
@@ -473,6 +491,8 @@ exec 6>&-
 
 # 5 Compound Commands
 
+``( list )`` invoke subshell while ``{ list; }`` run in current shell.
+
 ## 5.1 ``if`` Conditional Statements
 
 ``if TEST-COMMANDS; then CONSEQUENT-COMMANDS; fi``
@@ -488,8 +508,8 @@ The ``[`` or ``test`` built-in, or the ``[[`` compound command are called Bash c
 
 The following is 
 
-| Primary                             | Meaning |
-| :---------------------------------- | :------- |
+| Primary                         | Meaning |
+| :------------------------------ | :------ |
 | ``-a FILE``                     | True if FILE exists. |
 | ``-d FILE``                     | True if FILE exists and is a directory. |
 | ``-e FILE``                     | True if FILE exists. |
@@ -522,7 +542,7 @@ The following is
 Expressions may be combined using the following operators, listed in decreasing order of precedence:
 
 | Operation              | Effect |
-| :--------------------- | :-------- |
+| :--------------------- | :----- |
 | ``[ ! EXPR ]``         | True if **EXPR** is false. |
 | ``[ ( EXPR ) ]``       | Returns the value of **EXPR**. Override the normal precedence of operators. |
 | ``[ EXPR1 -a EXPR2 ]`` | True if both **EXPR1** and **EXPR2** are true. |
@@ -584,7 +604,7 @@ done
 
 Break and continue can be followed by a number to specify how many layers of loop to break/continue.
 
-## 5.5 ``select`` Compound Commands
+## 5.5 ``select`` Commands
 
 ``select NAME [in LIST ]; do COMMANDS; done``
 1. Expanded LIST would be printed to stderr preceded with corresponding number. 
@@ -598,15 +618,19 @@ Break and continue can be followed by a number to specify how many layers of loo
 
 ## 5.6 Functions
 
-## ``shift`` built-in
+``fname () compound-command [ redirections ]`` or ``function fname [()] compound-command [ redirections ]``
+
+``return`` to resume to the next command after the function call. Any command associated with the `RETURN` trap is executed before execution resumes. If a numeric argument is given to `return`, that is the function’s return status; otherwise the function’s return status is the exit status of the last command executed before the `return`.
+
+# 6 Catching Signals
 
 
+# 7 Miscellanous Commands
 
 ## ``getopts``
-
+``shift`` builtin
 TODO
 
-## Catching Signals
 
 
 ## ``date``
