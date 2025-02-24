@@ -199,6 +199,7 @@ studenta studentb studentc
 | expr ? expr : expr                              | conditional evaluation                     |
 | =, *=, /=, %=, +=, -=, <<=, >>=, &=, ^= and \|= | assignments                                |
 | ,                                               | separator between expressions              |
+
 Constants with leading 0 are interpreted as octal numbers. A leading "0x" or "0X" denotes hexadecimal. ``B#N`` means B-based number, ``N`` means base 10.
 
 6. **Process substitution**: ``<(LIST) >(LIST)`` use named pipes (FIFOs) or the ``/dev/fd`` method of naming open files. As a result of substitution, the name of this file (i.e. ``/dev/fd/63``) is passed as an argument to the current command. 
@@ -283,6 +284,7 @@ Metacharacters are as follows. ``^ $ \< \>`` are called anchors.
 | \B       | Matches the empty string provided it's not at the edge of a word.                                               |
 | \<       | Match the empty string at the beginning of word.                                                                |
 | \>       | Match the empty string at the end of word.                                                                      |
+
 Two regular expressions may be **concatenated**; the resulting regular expression matches any string formed by concatenating two substrings that respectively match the concatenated subexpressions.
 
 Two regular expressions may be joined by the infix operator "|"; the resulting regular expression matches any string matching either subexpression.
@@ -338,6 +340,7 @@ It is recommended that ``a\ c\ i\`` should only be placed at the end of the scri
 | r       | Read a file.                                                              |
 | s       | Search and replace text. ``s/regex/rep/g`` means replace all occurrences. |
 | w       | Write to a file.                                                          |
+
 A semicolon (‘;’) may be used to separate most simple commands (except `a\ c\ i\ # e w r` require newline).
 
 Use number and pattern to specify line, and use ``n,m`` or ``/pat1/,/pat2/`` or mixture of previous two to represent line ranges.
