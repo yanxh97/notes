@@ -1214,27 +1214,57 @@ mvn clean # clean build dir
 mvn clean package # package the project
 mvn clean install # package and delopy
 mvn clean test # unit test
-mvn clean package -f ../pom.xml # package with specific pom.xml file
+mvn clean package -f /path/to/pom.xml # package with specific pom.xml file
 mvn clean package -DskipTests
 mvn clean package -Dmaven.test.skip=true # skip unit test
 mvn deploy
-mvn clean package -s ../settings.xml
+mvn clean package -s /path/to/settings.xml
 ```
 
 In maven installation directory, change your settings in ``conf/settings.xml``, typical settings include mirrors, servers, and local repository.
 
 In jenkins pipeline, to specify interpreter, shebang should be in the same line of triple quotes.
+
 ```Groovy
-sh'''#!/bin/bash -l
+sh'''#!/bin/bash
 source ./.profile
 '''
 ```
 
+```Groovy
+// notice that you cannot use ./ prefix here
+junit 'target/surefire-reports/*.xml'`
+```
+
+To show unit test results in gitlab-ci, configure gitlab-ce server
+
+```
+$ gitlab-rails console
+...
+irb(main):001:0> Feature.enable(:junit_pipeline_view)
+```
 
 
+```yml
+jobname1:
+  stage: build
+  ...
+  artifacts: 
+    paths:
+      - target/*.jar
 
-## Gradle
+jobname2:
+  stage: test
+  ...
+  artifacts: 
+    reports:
+      junit: target/surefire-reports/TEST-*.xml
 
-## Go
+# In case of http 500 for artifacts uploading,
+# change bind-mount to docker volume for gitlab ce container
+```
 
-## npm-yarn
+Gradle: another java dependency management, quite similar to maven.
+
+# Day 5 SonarQube and Nexus
+
